@@ -1,0 +1,118 @@
+{
+  "name": "Weekly keyword trends to Google Sheets (Google Trends API & Scraper)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [1],
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "id": "8a2d3b20-0001-4b7f-8b02-000000000001",
+      "name": "Every Monday 07:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/reliable-apps~google-trends-reliable/run-sync-get-dataset-items",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "maxTotalChargeUsd",
+              "value": "0.10"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"searchTerms\": [\"web scraping\", \"web crawler\", \"data extraction\"],\n  \"compareMode\": true,\n  \"timeRange\": \"now 7-d\",\n  \"geo\": \"US\",\n  \"interestOverTime\": true,\n  \"interestByRegion\": false,\n  \"relatedQueries\": true\n}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "8a2d3b20-0002-4b7f-8b02-000000000002",
+      "name": "Run Google Trends API & Scraper",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [240, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Apify API token (header Authorization: Bearer <your token>)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// One sheet row per term: this week's average interest and top rising query.\n// Terms that failed arrive as error records (not charged); they are logged as rows too.\nconst rows = [];\nconst week = new Date().toISOString().slice(0, 10);\nfor (const { json: item } of $input.all()) {\n  if (item.type === 'result') {\n    const averages = item.interestOverTime?.averages ?? {};\n    for (const term of item.searchTerms) {\n      const rising = item.relatedQueries?.[term]?.rising ?? [];\n      rows.push({ json: {\n        week, term, geo: item.geo || 'worldwide', dates: item.timeRangeResolved,\n        avg_interest: averages[term] ?? null,\n        top_rising_query: rising[0]?.query ?? '', top_rising_change: rising[0]?.formattedValue ?? '',\n        status: 'ok', explore_url: item.exploreUrl,\n      } });\n    }\n  } else if (item.type === 'error') {\n    rows.push({ json: {\n      week, term: item.searchTerm, geo: item.geo || 'worldwide', dates: '', avg_interest: null,\n      top_rising_query: '', top_rising_change: '', status: `error: ${item.error_code}`, explore_url: '',\n    } });\n  }\n}\nreturn rows;"
+      },
+      "id": "8a2d3b20-0003-4b7f-8b02-000000000003",
+      "name": "One row per term",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Trends",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "8a2d3b20-0004-4b7f-8b02-000000000004",
+      "name": "Append to Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [720, 0],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Every Monday 07:00": {
+      "main": [[{ "node": "Run Google Trends API & Scraper", "type": "main", "index": 0 }]]
+    },
+    "Run Google Trends API & Scraper": {
+      "main": [[{ "node": "One row per term", "type": "main", "index": 0 }]]
+    },
+    "One row per term": {
+      "main": [[{ "node": "Append to Google Sheet", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}
