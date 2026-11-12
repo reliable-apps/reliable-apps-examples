@@ -22,6 +22,8 @@ Both tools also charge Apify's standard start fee of $0.00005 per run. You pay p
 | [job-board-feeds](job-board-feeds/) | Monitor competitor hiring signals | [monitor_hiring.py](job-board-feeds/python/monitor_hiring.py) (CSV + new roles since last run) | [monitor-hiring.mjs](job-board-feeds/javascript/monitor-hiring.mjs) | [weekly-hiring-digest.json](job-board-feeds/n8n/weekly-hiring-digest.json) |
 | [google-trends](google-trends/) | Weekly keyword trend report | [trends_to_csv.py](google-trends/python/trends_to_csv.py) (CSV + rising queries) | [trends.mjs](google-trends/javascript/trends.mjs) | [weekly-trends-to-sheet.json](google-trends/n8n/weekly-trends-to-sheet.json) |
 
+**Tutorial:** [How to get Greenhouse, Lever and Ashby job postings as JSON (and track new roles weekly)](https://dev.to/reliableapps/how-to-get-greenhouse-lever-and-ashby-job-postings-as-json-and-track-new-roles-weekly-59cl) walks through the job-board example step by step.
+
 ## Your Apify API token
 
 Every example uses **your own** Apify account and token, read from the `APIFY_TOKEN` environment variable.
