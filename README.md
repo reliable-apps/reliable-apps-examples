@@ -24,6 +24,8 @@ Both tools also charge Apify's standard start fee of $0.00005 per run. You pay p
 
 **Tutorial:** [How to get Greenhouse, Lever and Ashby job postings as JSON (and track new roles weekly)](https://dev.to/reliableapps/how-to-get-greenhouse-lever-and-ashby-job-postings-as-json-and-track-new-roles-weekly-59cl) walks through the job-board example step by step.
 
+**Tutorial:** [Google Trends API alternatives in 2026: getting Trends data as JSON (and what to do about 429s)](https://dev.to/reliableapps/google-trends-api-alternatives-in-2026-getting-trends-data-as-json-and-what-to-do-about-429s-2af0) walks through the Trends example step by step.
+
 ## Your Apify API token
 
 Every example uses **your own** Apify account and token, read from the `APIFY_TOKEN` environment variable.
